@@ -28,8 +28,12 @@
 
 package org.inventivetalent.boundingbox;
 
+import com.destroystokyo.paper.ParticleBuilder;
 import net.minecraft.world.phys.AxisAlignedBB;
+import org.bukkit.Color;
 import org.bukkit.Location;
+import org.bukkit.Particle;
+import org.bukkit.Particle.DustOptions;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -178,7 +182,16 @@ public class BoundingBoxAPI {
 	}
 
 	public static Runnable drawParticleOutline(final BoundingBox boundingBox, final World world, final org.bukkit.Particle particle) {
-		return () -> drawParticleOutline(boundingBox, world, location -> world.spawnParticle(particle, location, 1));
+		return drawParticleOutline(boundingBox, world, particle, 0);
+	}
+
+	public static Runnable drawParticleOutline(final BoundingBox boundingBox, final World world, final org.bukkit.Particle particle, float dustSize) {
+		return () -> drawParticleOutline(boundingBox, world, location -> {
+			DustOptions options = null;
+			if (particle == Particle.REDSTONE)
+				options = new DustOptions(Color.RED, dustSize);
+			new ParticleBuilder(particle).location(location).count(0).extra(0).data(options).spawn();
+		});
 	}
 
 	public static Runnable drawParticleOutline(final BoundingBox boundingBox, final World world, final ParticleEffect particle) {
@@ -207,7 +220,7 @@ public class BoundingBoxAPI {
 						edgeIntersectionCount++;
 
 					if (edgeIntersectionCount >= 2) {
-						if (i++ % 9 != 0)
+						if (i++ % 6 != 0)
 							continue;
 
 						spawnParticle.accept(vector.toBukkitLocation(world));
